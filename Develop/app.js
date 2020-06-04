@@ -10,10 +10,40 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+const allEmployees = [];
+const idArr = [];
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
-
+function createTeam(){
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employeeType',
+            message: 'What type of team member would you like to add?',
+            choices: [
+                'Engineer',
+                'Intern',
+                'Manager',
+                "None"
+            ]
+        }
+    ]).then(userChoice => {
+        switch(userChoice.employeeType) {
+            case 'Engineer':
+                addEngineer();
+                break;
+            case 'Intern': 
+                addIntern();
+                break;
+            case 'Manager':
+                addManager();
+                break;
+            default: 
+                outputTeam(); 
+        }
+    });
+}
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
@@ -24,9 +54,106 @@ const render = require("./lib/htmlRenderer");
 // Hint: you may need to check if the `output` folder exists and create it if it
 // does not.
 
+function outputTeam(){
+    if (!fs.existsSync(OUTPUT_DIR)) {
+        fs.mkdirSync(OUTPUT_DIR)
+    }
+    fs.writeFileSync(outputPath, render(allEmployees), 'utf-8');
+}
+
 // HINT: each employee type (manager, engineer, or intern) has slightly different
 // information; write your code to ask different questions via inquirer depending on
 // employee type.
+
+function addEngineer(){
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'engineerName',
+            message: "What is the engineer's name?"
+        },
+        {
+            type: 'input',
+            name: 'engineerId',
+            message: "What is the engineer's ID?"
+        },
+        {
+            type: 'input',
+            name: 'engineerEmail',
+            message: "What is the engineer's email?"
+        },
+        {
+            type: 'input',
+            name: 'engineerGithub',
+            message: "What is the engineer's Github username?"
+        }
+    ]).then(answers => {
+        const engineer = new Engineer(answers.engineerName, answers.engineerId, answers.engineerEmail, answers.engineerGithub);
+        allEmployees.push(engineer);
+        idArr.push(answers.engineerId);
+        createTeam();
+    })
+}
+
+function addIntern(){
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'internName',
+            message: "What is the intern's name?"
+        },
+        {
+            type: 'input',
+            name: 'internId',
+            message: "What is the intern's ID?"
+        },
+        {
+            type: 'input',
+            name: 'internEmail',
+            message: "What is the intern's email?"
+        },
+        {
+            type: 'input',
+            name: 'internSchool',
+            message: "What school does the intern go to?"
+        }
+    ]).then(answers => {
+        const intern = new Intern(answers.internName, answers.internId, answers.internEmail, answers.internSchool);
+        allEmployees.push(intern);
+        idArr.push(answers.internId);
+        createTeam();
+    })
+}
+
+function addManager(){
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'managerName',
+            message: "What is the manager's name?"
+        },
+        {
+            type: 'input',
+            name: 'managerId',
+            message: "What is the manager's ID?"
+        },
+        {
+            type: 'input',
+            name: 'managerEmail',
+            message: "What is the manager's email?"
+        },
+        {
+            type: 'input',
+            name: 'managerOfficeNumber',
+            message: "What is the manager's office number?"
+        }
+    ]).then(answers => {
+        const manager = new Manager(answers.managerName, answers.managerId, answers.managerEmail, answers.managerOfficeNumber);
+        allEmployees.push(manager);
+        idArr.push(answers.managerId);
+        createTeam();
+    })
+}
 
 // HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
 // and Intern classes should all extend from a class named Employee; see the directions
